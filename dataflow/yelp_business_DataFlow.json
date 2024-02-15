@@ -1,0 +1,122 @@
+{
+	"name": "yelp_business_DataFlow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "deataset_business_dataflow",
+						"type": "DatasetReference"
+					},
+					"name": "yelpSQLdedicatedBusiness"
+				},
+				{
+					"dataset": {
+						"referenceName": "deataset_reviews_dataflow",
+						"type": "DatasetReference"
+					},
+					"name": "yelpSQLdedicatedReviews"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "yelp_dl_cleandata_business",
+						"type": "DatasetReference"
+					},
+					"name": "SinkBusinessDL"
+				}
+			],
+			"transformations": [
+				{
+					"name": "castBusinessColumn"
+				},
+				{
+					"name": "LookForNULLs"
+				},
+				{
+					"name": "SumofVendorPerCity"
+				},
+				{
+					"name": "CastReviewColumns"
+				},
+				{
+					"name": "LookForNULLsReview"
+				},
+				{
+					"name": "joinBusinessReview",
+					"description": "Inner join of business and reviews on business_id"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          business_id as string,",
+				"          name as string,",
+				"          city as string,",
+				"          latitude as string,",
+				"          longitude as string,",
+				"          stars as string,",
+				"          review_count as string,",
+				"          categories as string",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: true,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     staged: true,",
+				"     partitionBy('hash', 1)) ~> yelpSQLdedicatedBusiness",
+				"source(output(",
+				"          user_id as string,",
+				"          business_id as string,",
+				"          stars as string,",
+				"          useful as string,",
+				"          funny as string,",
+				"          cool as string,",
+				"          text as string,",
+				"          date as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     staged: true) ~> yelpSQLdedicatedReviews",
+				"yelpSQLdedicatedBusiness cast(output(",
+				"          latitude as float,",
+				"          longitude as float,",
+				"          stars as integer,",
+				"          review_count as integer",
+				"     ),",
+				"     errors: true) ~> castBusinessColumn",
+				"castBusinessColumn split(contains(array(toString(columns())),isNull(#item)),",
+				"     disjoint: false) ~> LookForNULLs@(hasNULLsbusiness, noNULLsbusiness)",
+				"LookForNULLs@noNULLsbusiness window(over(city),",
+				"     VendorPerCity = count(business_id)) ~> SumofVendorPerCity",
+				"yelpSQLdedicatedReviews cast(output(",
+				"          stars as integer,",
+				"          useful as integer,",
+				"          funny as integer,",
+				"          cool as integer,",
+				"          date as timestamp",
+				"     ),",
+				"     errors: true) ~> CastReviewColumns",
+				"CastReviewColumns split(contains(array(toString(columns())),isNull(#item)),",
+				"     disjoint: false) ~> LookForNULLsReview@(hasNULLsreview, noNULLsreview)",
+				"SumofVendorPerCity, LookForNULLsReview@noNULLsreview join(LookForNULLs@noNULLsbusiness@business_id == LookForNULLsReview@noNULLsreview@business_id,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinBusinessReview",
+				"joinBusinessReview sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['business'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SinkBusinessDL"
+			]
+		}
+	}
+}

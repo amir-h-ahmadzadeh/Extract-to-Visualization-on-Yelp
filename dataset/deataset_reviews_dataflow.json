@@ -1,0 +1,50 @@
+{
+	"name": "deataset_reviews_dataflow",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "yelp_SQLdedicated_review",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": [
+			{
+				"name": "user_id",
+				"type": "nvarchar"
+			},
+			{
+				"name": "business_id",
+				"type": "nvarchar"
+			},
+			{
+				"name": "stars",
+				"type": "nvarchar"
+			},
+			{
+				"name": "useful",
+				"type": "nvarchar"
+			},
+			{
+				"name": "funny",
+				"type": "nvarchar"
+			},
+			{
+				"name": "cool",
+				"type": "nvarchar"
+			},
+			{
+				"name": "text",
+				"type": "nvarchar"
+			},
+			{
+				"name": "date",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "data",
+			"table": "reviews.csv"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

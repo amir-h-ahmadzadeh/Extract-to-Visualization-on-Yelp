@@ -1,0 +1,75 @@
+{
+	"name": "yelp_reviews_DataFlow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "deataset_reviews_dataflow",
+						"type": "DatasetReference"
+					},
+					"name": "yelpDatainSQLreviews"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "yelp_dl_cleandata_review",
+						"type": "DatasetReference"
+					},
+					"name": "SinkReviewDL"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CastReviewColumns"
+				},
+				{
+					"name": "LookForNULLs"
+				},
+				{
+					"name": "AggByVendor"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          user_id as string,",
+				"          business_id as string,",
+				"          stars as string,",
+				"          useful as string,",
+				"          funny as string,",
+				"          cool as string,",
+				"          text as string,",
+				"          date as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     staged: true) ~> yelpDatainSQLreviews",
+				"yelpDatainSQLreviews cast(output(",
+				"          stars as integer,",
+				"          useful as integer,",
+				"          funny as integer,",
+				"          cool as integer,",
+				"          date as timestamp",
+				"     ),",
+				"     errors: true) ~> CastReviewColumns",
+				"CastReviewColumns split(contains(array(toString(columns())),isNull(#item)),",
+				"     disjoint: false) ~> LookForNULLs@(hasNULLs, noNULLs)",
+				"LookForNULLs@noNULLs window(over(business_id),",
+				"     AvgStarForVendor = avg(stars)) ~> AggByVendor",
+				"AggByVendor sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['reviews'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SinkReviewDL"
+			]
+		}
+	}
+}

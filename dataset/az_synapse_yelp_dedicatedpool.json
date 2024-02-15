@@ -1,0 +1,26 @@
+{
+	"name": "az_synapse_yelp_dedicatedpool",
+	"properties": {
+		"parameters": {
+			"tablesql": {
+				"type": "string",
+				"defaultValue": "tbl"
+			}
+		},
+		"annotations": [],
+		"type": "SqlPoolTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "data",
+			"table": {
+				"value": "@dataset().tablesql",
+				"type": "Expression"
+			}
+		},
+		"sqlPool": {
+			"referenceName": "DedicatedP1",
+			"type": "SqlPoolReference"
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

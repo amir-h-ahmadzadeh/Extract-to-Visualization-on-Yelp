@@ -1,0 +1,17 @@
+{
+	"name": "SQL script 1",
+	"properties": {
+		"content": {
+			"query": "DROP TABLE [data].[business.csv]\nDROP TABLE [data].[user.csv]\nDROP TABLE [data].[reviews.csv]\nGO\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "DedicatedP1",
+				"poolName": "DedicatedP1"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

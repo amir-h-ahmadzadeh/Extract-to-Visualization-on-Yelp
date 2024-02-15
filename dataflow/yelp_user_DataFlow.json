@@ -1,0 +1,72 @@
+{
+	"name": "yelp_user_DataFlow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "deataset_user_dataflow",
+						"type": "DatasetReference"
+					},
+					"name": "yelpDatainSQLuser"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "yelp_dl_cleandata_users",
+						"type": "DatasetReference"
+					},
+					"name": "SinkuserDL"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CastUserColumns"
+				},
+				{
+					"name": "LookForNULLs"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          user_id as string,",
+				"          name as string,",
+				"          review_count as string,",
+				"          useful as string,",
+				"          funny as string,",
+				"          cool as string,",
+				"          fans as string,",
+				"          average_stars as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     staged: true) ~> yelpDatainSQLuser",
+				"yelpDatainSQLuser cast(output(",
+				"          review_count as integer,",
+				"          useful as integer,",
+				"          funny as integer,",
+				"          cool as integer,",
+				"          fans as integer,",
+				"          average_stars as float",
+				"     ),",
+				"     errors: true) ~> CastUserColumns",
+				"CastUserColumns split(contains(array(toString(columns())),isNull(#item)),",
+				"     disjoint: false) ~> LookForNULLs@(hasNULLs, noNULLs)",
+				"LookForNULLs@noNULLs sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['user'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> SinkuserDL"
+			]
+		}
+	}
+}

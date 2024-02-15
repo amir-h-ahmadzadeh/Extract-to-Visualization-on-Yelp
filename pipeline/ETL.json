@@ -1,0 +1,79 @@
+{
+	"name": "ETL",
+	"properties": {
+		"activities": [
+			{
+				"name": "copy_yelp_data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": {
+								"value": "@pipeline().parameters.tablename",
+								"type": "Expression"
+							},
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "SqlPoolSink",
+						"allowCopyCommand": true,
+						"tableOption": "autoCreate"
+					},
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "movielensproject-asa-WorkspaceDefaultStorage",
+							"type": "LinkedServiceReference"
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "az_synapse_yelp_DL",
+						"type": "DatasetReference",
+						"parameters": {
+							"table": "tbl"
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "az_synapse_yelp_dedicatedpool",
+						"type": "DatasetReference",
+						"parameters": {
+							"tablesql": {
+								"value": "@pipeline().parameters.tablename",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"tablename": {
+				"type": "string",
+				"defaultValue": "tblname"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-05T10:24:26Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

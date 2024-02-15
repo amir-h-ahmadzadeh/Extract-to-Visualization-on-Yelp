@@ -1,0 +1,21 @@
+{
+	"name": "yelp_dl_cleandata_review",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "movielensproject-asa-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "cleanData/review",
+				"fileSystem": "data"
+			},
+			"compressionCodec": "none"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}
