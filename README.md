@@ -26,4 +26,4 @@ As the Final project for the Data analysis boot camp at Iron Hack, this project 
  - [Data Engineering](https://blog.det.life/)
  - [Pragmatic Works youtube channel](https://www.youtube.com/@PragmaticWorks)
  - [Data warehouse management](https://www.cdata.com/sync/about/data-warehousing.rst?kw=&cpn=19684282729&utm_source=google&utm_medium=cpc&utm_campaign=Search_-_Sync_-_RLSA_+_DSA&utm_content=Sync_-_RLSA_+_DSA&utm_term=|&kw=&cpn=19684282729&gad_source=1&gclid=CjwKCAiA8sauBhB3EiwAruTRJuPa2GECvm9cek_ndtDzdPYBTJHtIE40xqglgj8aOHxxrYjyhzndHRoCg74QAvD_BwE)
-
+ - [Yelp Open Dataset](https://www.yelp.com/dataset)
